@@ -1,0 +1,32 @@
+<div [ngSwitch]="gameState?.state">
+  <div *ngSwitchCase="GameStates.Created">
+    <span>
+      Поиск соперников ...
+    </span>
+  </div>
+  <div *ngSwitchCase="GameStates.Started">
+    <span>
+      Игра началась
+    </span>
+  </div>
+  <div *ngSwitchCase="GameStates.Finished">
+    <span>
+      Игра завершилась
+    </span>
+  </div>
+  <div *ngSwitchCase="GameStates.Canceled">
+    <span>
+      Игра отменена
+    </span>
+  </div>
+  <div *ngSwitchCase="GameStates.Canceled">
+    <span>
+      Игра отменена
+    </span>
+  </div>
+  <div *ngSwitchDefault>
+    <span>
+      Игра не найдена
+    </span>
+  </div>
+</div>

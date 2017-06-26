@@ -1,0 +1,14 @@
+.app-form {
+}
+
+.app-form form {
+}
+
+.app-form form h3 {
+  text-align: center;
+}
+
+:host {
+  height: 100%;
+}
+

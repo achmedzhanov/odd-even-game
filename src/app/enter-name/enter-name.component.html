@@ -1,0 +1,11 @@
+<div fxLayout="column" fxFlex fxLayoutAlign="center center" class="app-form" >
+      <form [formGroup]="form" >
+        <h3>Ваше имя</h3>
+        <div class="form-group">
+          <input type="text" class="form-control input-lg" id="nickname" formControlName="nickname" >
+        </div>
+        <button type="submit" (click)="ok()" [disabled]="!form.valid || busy" class="btn btn-lg btn-primary btn-block">Ок</button>
+      </form>
+</div>
+
+

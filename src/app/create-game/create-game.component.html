@@ -1,0 +1,10 @@
+<div fxLayout="column" fxFlex fxLayoutAlign="center center" class="app-form" >
+  <form [formGroup]="form" >
+    <h3>Начать игру</h3>
+    <div class="form-group">
+      <label for="numberOfPlayers">Колличество игроков</label>
+      <input type="text" class="form-control input-lg" id="numberOfPlayers" formControlName="numberOfPlayers" >
+    </div>
+    <button type="submit" (click)="ok()" [disabled]="!form.valid || busy" class="btn btn-lg btn-primary btn-block">Ок</button>
+  </form>
+</div>
