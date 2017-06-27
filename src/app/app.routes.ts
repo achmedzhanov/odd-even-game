@@ -1,12 +1,16 @@
-import {Routes} from '@angular/router';
-import {EnterNameComponent} from './enter-name/enter-name.component';
-import {CreateGameComponent} from './create-game/create-game.component';
-import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
-import {GameComponent} from './game/game.component';
+import { Routes } from '@angular/router';
+import { SignInComponent } from './sign-in/sign-in.component';
+import { CreateGameComponent } from './game-create/game-create.component';
+import { PageNotFoundComponent } from './shared/page-not-found/page-not-found.component';
+import { GameComponent } from './game/game.component';
+import { GameListComponent } from './game-list/game-list.component';
+import { ErrorComponent } from './shared/error/error.component';
 
 export const appRoutes: Routes = [
-  { path: 'enter-name', component: EnterNameComponent },
+  { path: 'error', component: ErrorComponent },
+  { path: 'enter-name', component: SignInComponent },
   { path: 'create-game', component: CreateGameComponent },
+  { path: 'game-list', component: GameListComponent },
   { path: 'game/:id', component: GameComponent },
   { path: '',
     redirectTo: '/enter-name',

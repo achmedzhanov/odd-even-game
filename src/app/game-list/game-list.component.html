@@ -1,0 +1,45 @@
+<div fxLayout="column" fxFlex fxLayoutAlign="center center" class="app-form" >
+    <h3>Игры</h3>
+
+  <div *ngIf="!games" >
+    <p>Загрузка ...</p>
+  </div>
+
+    <div *ngIf="games && games.length === 0" >
+      <p>Никто еще не начал игру</p>
+
+      <a routerLink="/create-game" >Новая игра</a>
+    </div>
+
+    <div *ngIf="games && games.length > 0" >
+
+      <table class="table">
+        <thead>
+        <tr>
+          <th>
+            Создатель
+          </th>
+          <th>
+            Количество игроков
+          </th>
+          <th>
+          </th>
+        </tr>
+        </thead>
+        <tr *ngFor="let g of games" >
+          <td>
+            {{g.creator?.nickname}}
+          </td>
+          <td>
+            {{g.numberOfPlayers}}
+          </td>
+          <td>
+            <button class="btn btn-primary" (click)="join(g.id)" >Играть</button>
+          </td>
+        </tr>
+      </table>
+
+      <a routerLink="/create-game" >Новая игра</a>
+    </div>
+
+</div>

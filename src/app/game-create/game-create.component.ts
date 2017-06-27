@@ -4,8 +4,8 @@ import {GameService} from '../game.service';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-create-game',
-  templateUrl: './create-game.component.html',
+  selector: 'app-game-create',
+  templateUrl: './game-create.component.html',
   styleUrls: ['../shared/form-screen.css']
 })
 export class CreateGameComponent implements OnInit {
@@ -32,7 +32,10 @@ export class CreateGameComponent implements OnInit {
 
       try {
 
-        const gameId = await this._gameService.createGame({nickname: this._gameService.nickname, numberOfPlayers: this.form.value.numberOfPlayers});
+        const gameId = await this._gameService.createGame({
+          nickname: this._gameService.nickname,
+          numberOfPlayers: Number(this.form.value.numberOfPlayers)
+        });
         await this._router.navigate(['game', gameId]);
 
       } finally {

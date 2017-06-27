@@ -1,0 +1,8 @@
+.looking-for-players, .message {
+  text-align: center;
+}
+
+:host {
+  height: 100%;
+}
+

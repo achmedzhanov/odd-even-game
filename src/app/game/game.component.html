@@ -1,32 +1,38 @@
-<div [ngSwitch]="gameState?.state">
-  <div *ngSwitchCase="GameStates.Created">
-    <span>
-      Поиск соперников ...
-    </span>
+<div [ngSwitch]="gameState?.state" fxLayout="column" fxFlex fxLayoutAlign="center center" >
+  <div *ngSwitchCase="GameStates.Created" class="looking-for-players" >
+    <h4 class="text-primary">Поиск соперников ...</h4>
+
+      <div *ngIf="gameState.players?.length > 1">
+          <div class="text-muted" > Присоединились {{gameState.players.length}} из {{gameState.numberOfPlayers}}
+            <ul class="list-inline">
+              <li *ngFor="let p of gameState.players; let idx = index" >
+                {{p.nickname}}
+              </li>
+            </ul>
+          </div>
+     </div>
+
+    <button type="button" class="btn" (click)="cancel()" >Отмена</button>
+
   </div>
   <div *ngSwitchCase="GameStates.Started">
-    <span>
+    <h2>
       Игра началась
-    </span>
+    </h2>
   </div>
   <div *ngSwitchCase="GameStates.Finished">
-    <span>
+    <h2>
       Игра завершилась
-    </span>
+    </h2>
   </div>
   <div *ngSwitchCase="GameStates.Canceled">
-    <span>
+    <h2>
       Игра отменена
-    </span>
+    </h2>
   </div>
-  <div *ngSwitchCase="GameStates.Canceled">
-    <span>
-      Игра отменена
-    </span>
-  </div>
-  <div *ngSwitchDefault>
-    <span>
-      Игра не найдена
-    </span>
+  <div *ngSwitchDefault class="message">
+    <h2 class="text-muted" >
+      Загрузка ...
+    </h2>
   </div>
 </div>

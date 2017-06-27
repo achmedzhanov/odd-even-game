@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-enter-name',
-  templateUrl: './enter-name.component.html',
+  templateUrl: './sign-in.component.html',
   styleUrls: ['../shared/form-screen.css']
 })
-export class EnterNameComponent implements OnInit {
+export class SignInComponent implements OnInit {
 
   form: FormGroup;
   busy = false;

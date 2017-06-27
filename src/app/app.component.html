@@ -1,9 +1,15 @@
 <!--The whole content below can be removed with the new code.-->
 <div class="title" fxLayout="column" class="root-layout" >
-  <h1 class="app-title">
-    Чет-нечет
-  </h1>
+  <div fxLayout="row"  >
+    <div fxFlex="20" ></div>
+    <h1 fxFlex="60" class="app-title">
+      Чет-нечет
+    </h1>
+    <div fxFlex="20" class="current-player" fxFlexAlign="center" >
+      {{(currentPlayer | async)?.nickname}}
+    </div>
+  </div>
   <div fxFlex="grow" fxLayout="column" class="app-content" >
-    <router-outlet></router-outlet>
+    <router-outlet *ngIf="initialized" ></router-outlet>
   </div>
 </div>

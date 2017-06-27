@@ -1,28 +1,33 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { appRoutes } from './app.routes';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { environment } from '../environments/environment';
+import { AppErrorHandler } from './app-error-handler';
 
 import { AppComponent } from './app.component';
-import { EnterNameComponent } from './enter-name/enter-name.component';
-import { CreateGameComponent } from './create-game/create-game.component';
+import { SignInComponent } from './sign-in/sign-in.component';
+import { CreateGameComponent } from './game-create/game-create.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
+import {PageNotFoundComponent} from './shared/page-not-found/page-not-found.component';
 import {RouterModule} from '@angular/router';
 import { GameComponent } from './game/game.component';
+import { GameListComponent } from './game-list/game-list.component';
+import { ErrorComponent } from './shared/error/error.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    EnterNameComponent,
+    SignInComponent,
     CreateGameComponent,
     PageNotFoundComponent,
-    GameComponent
+    GameComponent,
+    GameListComponent,
+    ErrorComponent
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -34,7 +39,7 @@ import { GameComponent } from './game/game.component';
     AngularFireDatabaseModule,
     AngularFireAuthModule
   ],
-  providers: [],
+  providers: [{provide: ErrorHandler, useClass: AppErrorHandler}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
