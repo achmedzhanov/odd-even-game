@@ -1,8 +1,17 @@
-.looking-for-players, .message {
-  text-align: center;
-}
-
 :host {
   height: 100%;
 }
+
+.looking-for-players, .message, .centered {
+  text-align: center;
+}
+
+.game-control {
+  min-height: 300px;
+}
+
+.game-control .title {
+  text-align: center;
+}
+
 

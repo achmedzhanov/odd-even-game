@@ -17,6 +17,9 @@ import {RouterModule} from '@angular/router';
 import { GameComponent } from './game/game.component';
 import { GameListComponent } from './game-list/game-list.component';
 import { ErrorComponent } from './shared/error/error.component';
+import { GameEnterNumberComponent } from './game-enter-number/game-enter-number.component';
+import { ScoreListComponent } from './score-list/score-list.component';
+import { GameChooseOddEvenComponent } from './game-choose-odd-even/game-choose-odd-even.component';
 
 
 @NgModule({
@@ -27,7 +30,10 @@ import { ErrorComponent } from './shared/error/error.component';
     PageNotFoundComponent,
     GameComponent,
     GameListComponent,
-    ErrorComponent
+    ErrorComponent,
+    GameEnterNumberComponent,
+    ScoreListComponent,
+    GameChooseOddEvenComponent
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

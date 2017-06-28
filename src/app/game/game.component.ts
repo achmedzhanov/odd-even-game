@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {GameStates, StartingGameState} from '../game.model';
+import {GameStates, StartingGameState, TurnType} from '../game.model';
 import { GameService } from '../game.service';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil'
@@ -11,6 +11,12 @@ import 'rxjs/add/operator/takeUntil'
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit, OnDestroy {
+
+  myTurn: boolean | TurnType;
+
+  TurnType = TurnType;
+
+  scores: any[];
 
   gameState: StartingGameState /* PlayingGameState */ = null;
 
@@ -34,6 +40,14 @@ export class GameComponent implements OnInit, OnDestroy {
     this._gameService.getStartingGameState(gameId)
       .takeUntil(this._componentDestroyed)
       .subscribe((v) => this.gameState = v);
+
+    this._gameService.getGameScores(gameId)
+      .takeUntil(this._componentDestroyed)
+      .subscribe((v) => this.scores = v);
+
+    this._gameService.getMyTurns(gameId)
+      .takeUntil(this._componentDestroyed)
+      .subscribe((v) => this.myTurn = v);
   }
 
   ngOnDestroy() {

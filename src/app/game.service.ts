@@ -2,9 +2,28 @@ import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
-import {GameStates, Player, StartingGameState} from 'app/game.model';
+import {
+  GameState, GameStates, Player, StartingGameState,
+  TurnType
+} from 'app/game.model';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import {AuthRequiredError} from './auth-required.error';
+import {isNullOrUndefined} from 'util';
+
+interface GameTurn {
+  turn?: {
+    playerKey: string,
+    turnType: TurnType
+  }
+}
+
+interface GameNumber {
+  number?: number;
+}
+
+interface GameScores {
+  scores?: {};
+}
 
 @Injectable()
 export class GameService {
@@ -105,19 +124,18 @@ export class GameService {
       if (Number(game.numberOfPlayers) > playersKeys.length && !playersKeys.includes(currentUserUid)) {
         game.players[currentUserUid] = this._nickname;
 
-        if (Number(game.numberOfPlayers) === playersKeys.length) {
-          game.state = GameStates.Started;
+        if (Number(game.numberOfPlayers) === Object.keys(game.players).length) {
+          this._startGame(game);
         }
-        // todo setup current step
       }
 
       return game;
     });
 
     if (result.snapshot) {
-      const val = result.snapshot.val();
-      console.log('val', val);
-      if (val.players && val.players[currentUserUid]) {
+      const value = result.snapshot.val();
+      console.log('val', value);
+      if (value.players && value.players[currentUserUid]) {
         return true;
       }
     }
@@ -165,11 +183,161 @@ export class GameService {
   }
 
 
+  getMyTurns(gameId: string): Observable<TurnType> {
+    this._checkAuth();
+
+    return this._db.object('/games/' + gameId + '/turn', { preserveSnapshot: true })
+      .map((r: any) => {
+        const value = r.val();
+        if (!value || value.playerKey !== this._user.uid) {
+          return TurnType.Wait;
+        }
+        return value.turnType;
+      })
+  }
+
+  async guess(gameId: string, isEven: boolean): Promise<boolean> {
+    this._checkAuth();
+
+    const currentUserUid = this._user.uid;
+
+    const result = await this._db.database.ref('/games/' + gameId).transaction((game: GameState & GameTurn & GameNumber & GameScores) => {
+      if (!game) {
+        return game;
+      }
+
+      if (game.state !== GameStates.Started ) {
+        return game;
+      }
+
+      if (!(game.turn && game.turn.playerKey === currentUserUid && game.turn.turnType === TurnType.Guess)) {
+        return game;
+      }
+
+      const actualIsEven = (game.number % 2) === 0;
+
+      if (actualIsEven === isEven) {
+        const scores = game.scores || {};
+        const score = scores[currentUserUid] || 0;
+        scores[currentUserUid] = score + 1;
+        game.scores = scores;
+      }
+
+      this._nextTurn(<any>game);
+
+      return game;
+    });
+
+    // TODO scheck score increment
+    return false;
+  }
+
+  async makeNumber(gameId: string, value: number): Promise<void> {
+    this._checkAuth();
+
+    const currentUserUid = this._user.uid;
+
+    const result = await this._db.database.ref('/games/' + gameId).transaction((game: GameState & GameTurn & GameNumber) => {
+      if (!game) {
+        return game;
+      }
+
+      if (game.state !== GameStates.Started ) {
+        return game;
+      }
+
+      if (!(game.turn && game.turn.playerKey === currentUserUid && game.turn.turnType === TurnType.MakeNumber)) {
+        return game;
+      }
+
+      game.number = value;
+
+      this._nextTurn(<any>game);
+
+      return game;
+    });
+  }
+
+  getGameScores(gameId: string): Observable<{player: Player, score: number}[] | null> {
+    this._checkAuth();
+
+    // todo get players list once
+
+    return this._db.object('/games/' + gameId + '/scores', { preserveSnapshot: true })
+      .map((r) => {
+      const value = r.val();
+      if (!value) {
+        return null;
+      }
+      return Object.keys(value).map((k) => {
+            return {
+              player: {
+                uid: k,
+                nickname: k
+              },
+              score: value[k]
+            }
+          });
+      });
+  }
+
+  private _startGame(game: any) {
+    game.state = GameStates.Started;
+    game.numberOfrounds = 5; // TODO get from db
+    this._nextTurn(game);
+  }
+
+  private _nextTurn(game: {roundIdx?: number, turn?: {playerKey: string, turnType: TurnType}, scores?: {}, players: {}}) {
+
+    // todo filter handle leaved players
+    const playersKeys = Object.keys(game.players);
+    if (playersKeys.length < 2) {
+      throw new Error('Ожидается количество игроков не менее 2-х');
+    }
+
+    if (isNullOrUndefined(game.turn) || isNullOrUndefined(game.roundIdx)) {
+      game.roundIdx = 0;
+      game.turn = {
+        playerKey: playersKeys[0],
+        turnType: TurnType.MakeNumber
+      };
+
+      const scores = {};
+      for (let k of playersKeys) {
+        scores[k] = 0;
+      }
+      game.scores = scores;
+    } else {
+        const idx = playersKeys.indexOf(game.turn.playerKey);
+        if (idx === -1) {
+          throw new Error('Неверный turnKey');
+        }
+
+        if (game.turn.turnType === TurnType.Guess) {
+          game.turn.turnType = TurnType.MakeNumber;
+        } else {
+          if (idx < playersKeys.length - 1) {
+            game.turn = {
+              playerKey: playersKeys[idx + 1],
+              turnType: TurnType.Guess
+            };
+          } else {
+            game.turn = {
+              playerKey: playersKeys[0],
+              turnType: TurnType.Guess
+            };
+            game.roundIdx += 1;
+          }
+        }
+    }
+  }
+
   private _mapStartingGameState(record: any): StartingGameState {
     return <StartingGameState>{
       id: record.$key,
       state: record.state,
       numberOfPlayers: record.numberOfPlayers,
+      joinedNumberOfPlayers: Object.keys(record.players).length,
       creator: {
         uid: record.creator.uid,
         nickname: record.creator.nickname

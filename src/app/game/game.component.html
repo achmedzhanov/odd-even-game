@@ -1,6 +1,6 @@
 <div [ngSwitch]="gameState?.state" fxLayout="column" fxFlex fxLayoutAlign="center center" >
   <div *ngSwitchCase="GameStates.Created" class="looking-for-players" >
-    <h4 class="text-primary">Поиск соперников ...</h4>
+    <h4 class="text-primary">Поиск соперников</h4>
 
       <div *ngIf="gameState.players?.length > 1">
           <div class="text-muted" > Присоединились {{gameState.players.length}} из {{gameState.numberOfPlayers}}
@@ -16,9 +16,36 @@
 
   </div>
   <div *ngSwitchCase="GameStates.Started">
-    <h2>
-      Игра началась
-    </h2>
+
+    <div class="game-control" >
+      <div [ngSwitch]="myTurn" >
+
+        <div *ngSwitchCase="TurnType.Guess" class="turn" >
+          <h4 class="title text-primary" >Ваш ход</h4>
+          <app-game-choose-odd-even [gameId]="gameState.id" ></app-game-choose-odd-even>
+        </div>
+
+        <div *ngSwitchCase="TurnType.MakeNumber" class="turn" >
+          <h4 class="title text-primary" >Ваш ход</h4>
+          <app-game-enter-number [gameId]="gameState.id" ></app-game-enter-number>
+        </div>
+
+        <div *ngSwitchCase="TurnType.Wait" class="turn" >
+          <h4 class="title text-primary" >Ждем Ваш ход</h4>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="scores" class="centered" >
+      <h4 class="text-muted">Счет</h4>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let s of scores" >
+          <span class="badge">{{s.score}}</span>
+          {{s.player.nickname}}
+        </li>
+      </ul>
+    </div>
+
   </div>
   <div *ngSwitchCase="GameStates.Finished">
     <h2>
