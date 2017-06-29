@@ -29,7 +29,7 @@ export class SignInComponent implements OnInit {
       try {
 
         await this._gameService.signIn(this.form.value.nickname);
-        await this._router.navigateByUrl('/create-game');
+        await this._router.navigateByUrl('/');
 
       } finally {
         this.busy = false;
