@@ -37,7 +37,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     const gameId = this._route.snapshot.params['id'];
-    this._gameService.getStartingGameState(gameId)
+    this._gameService.getGameState(gameId)
       .takeUntil(this._componentDestroyed)
       .subscribe((v) => this.gameState = v);
 

@@ -83,39 +83,55 @@ export class GameService {
   async createGame(params: { nickname: string, numberOfPlayers: number }): Promise<string> {
     this._checkAuth();
 
-    const newData = await this._db.database.ref('/games').push();
-    // todo get current user uid
+    // const newData = await this._db.database.ref('/games').push();
+    // // todo get current user uid
+    // const uid = this._user.uid;
+    // const players = { };
+    // players[uid] = params.nickname;
+    // await newData.update({
+    //   numberOfPlayers: params.numberOfPlayers,
+    //   creator: {
+    //     uid: uid,
+    //     nickname: params.nickname
+    //   },
+    //   players: players,
+    //   state: GameStatus.Created
+    // });
+    //
+    // return newData.key;
+
     const uid = this._user.uid;
-    const players = { };
-    players[uid] = params.nickname;
+    const newData = await this._db.database.ref('/requests/create-game/' + uid + '').push();
+    const newGameKey = newData.key;
+
     await newData.update({
-      numberOfPlayers: params.numberOfPlayers,
-      creator: {
-        uid: uid,
-        nickname: params.nickname
-      },
-      players: players,
-      state: GameStatus.Created
+      numberOfPlayers: params.numberOfPlayers
     });
 
-    return newData.key;
+    console.log('updated');
+
+    console.log('wait response', '/responses/create-game/' + uid + '/' + newGameKey);
+
+    const response = await this._db.object('/responses/create-game/' + uid + '/' + newGameKey, { preserveSnapshot: true })
+      .map(v => {
+        console.log('map response value', v.val());
+        return v.val();
+      }).first(v => v != null)
+      .toPromise();
+
+    // const response = (await this._db.database.ref('/responses/create-game/' + uid + '/' + newGameKey)
+    //   .on('value')).val();
+
+    console.log('response', response);
+
+    await this._db.database.ref('/requests/create-game/' + uid + '/' + newGameKey).remove();
+    await this._db.database.ref('/responses/create-game/' + uid + '/' + newGameKey).remove();
+
+    return response;
+
   }
 
-  async getGame(gameId: string): Promise<any> {
-    this._checkAuth();
-
-    const data = await this._db.database.ref('/games/' + gameId).once('value');
-    const game = data.val()
-    return game;
-  }
-
-  getGameState(gameId: string): Observable</*{state: GameState}*/any> {
-    this._checkAuth();
-
-    return this._db.object('/games/' + gameId, { preserveSnapshot: true }).map((v) => v.val());
-  }
-
-  getStartingGameState(gameId: string): Observable<GameState> {
+  getGameState(gameId: string): Observable<GameState> {
     this._checkAuth();
 
     return this._db.object('/games/' + gameId, { preserveSnapshot: false }).map((v) => this._mapGameState(v));

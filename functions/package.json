@@ -1,9 +1,14 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "build": "tsc",
+    "deploy-prod": "tsc && firebase deploy --project prod"
+  },
   "dependencies": {
     "firebase-admin": "~4.2.1",
     "firebase-functions": "^0.5.7"
   },
+  "main": "./lib/functions/src/index.js",
   "private": true
 }
