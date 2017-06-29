@@ -14,6 +14,11 @@ export interface Player {
   nickname: string;
 }
 
+export interface Score {
+  player: Player,
+  score: number;
+}
+
 export interface StartingGameState extends GameState {
   numberOfPlayers: number;
   joinedNumberOfPlayers: number;

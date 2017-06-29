@@ -3,7 +3,7 @@ import { AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 import {
-  GameState, GameStates, Player, StartingGameState,
+  GameState, GameStates, Player, Score, StartingGameState,
   TurnType
 } from 'app/game.model';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
@@ -258,27 +258,35 @@ export class GameService {
     });
   }
 
-  getGameScores(gameId: string): Observable<{player: Player, score: number}[] | null> {
+  getGameScores(gameId: string): Observable<Score[] | null> {
     this._checkAuth();
 
-    // todo get players list once
-
-    return this._db.object('/games/' + gameId + '/scores', { preserveSnapshot: true })
+    const players$ = this._db.object('/games/' + gameId + '/players', { preserveSnapshot: true })
       .map((r) => {
       const value = r.val();
-      if (!value) {
-        return null;
-      }
-      return Object.keys(value).map((k) => {
-            return {
-              player: {
-                uid: k,
-                nickname: k
-              },
-              score: value[k]
-            }
-          });
+      return  Object.keys(value || {}).map((k) => {
+          return {
+            uid: k,
+            nickname: value[k]
+          }
+        })
       });
+
+    const scores$ = this._db.object('/games/' + gameId + '/scores', { preserveSnapshot: true })
+      .map((r) => {
+        return <{[ket: string]: number} | null>r.val();
+      });
+
+    return players$.combineLatest(scores$)
+      .map((v) => {
+        const [players, scores] = v;
+        return players.map((p) => {
+          return {
+            player: p,
+            score: scores[p.uid] || 0
+          }
+        })
+      })
   }
 
   private _startGame(game: any) {

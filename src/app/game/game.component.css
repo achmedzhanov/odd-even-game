@@ -8,6 +8,7 @@
 
 .game-control {
   min-height: 300px;
+  min-width: 300px;
 }
 
 .game-control .title {
