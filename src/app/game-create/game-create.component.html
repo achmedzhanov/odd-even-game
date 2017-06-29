@@ -5,7 +5,7 @@
       <label for="numberOfPlayers">Количество игроков</label>
       <input type="number" class="form-control input-lg" id="numberOfPlayers" formControlName="numberOfPlayers" >
     </div>
-    <button type="submit" (click)="ok()" [disabled]="!form.valid || busy" class="btn btn-lg btn-primary btn-block">Ок</button>
-    <a class="btn btn-default btn-lg btn-block" role="button" routerLink="/" >Отмена</a>
+    <app-busy-button (click)="ok()" [disabled]="!form.valid" [busy]="busy" >Ок</app-busy-button>
+    <button type="button" class="btn btn-default btn-lg btn-block" routerLink="/" >Отмена</button>
   </form>
 </div>

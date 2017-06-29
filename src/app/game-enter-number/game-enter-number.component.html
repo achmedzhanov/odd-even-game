@@ -2,5 +2,5 @@
   <div class="form-group">
     <input type="number" class="form-control input-lg" id="number" formControlName="number" placeholder="введите число" >
   </div>
-  <button type="submit" (click)="ok()" [disabled]="!form.valid || busy" class="btn btn-lg btn-primary btn-block">Ок</button>
+  <app-busy-button (click)="ok()" [disabled]="!form.valid" [busy]="busy">Ок</app-busy-button>
 </form>

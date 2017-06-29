@@ -8,6 +8,10 @@
   text-align: center;
 }
 
+.app-form app-busy-button, .app-form button {
+  margin-top: 10px;
+}
+
 :host {
   height: 100%;
 }

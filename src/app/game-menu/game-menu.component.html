@@ -1,7 +1,8 @@
 <div fxLayout="column" fxFlex fxLayoutAlign="center center" class="app-form" >
 
-  <button type="button" (click)="play()" [disabled]="busy" class="btn btn-lg btn-primary">Играть</button>
+  <app-busy-button (click)="play()" [busy]="busy" >Играть</app-busy-button>
   <button type="button" class="btn btn-lg" routerLink="/create-game" >Создать игру</button>
   <button type="button" class="btn btn-lg" routerLink="/game-list" >Присоединиться</button>
   <button type="button" class="btn btn-lg" routerLink="/help" >Правила</button>
+
 </div>

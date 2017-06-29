@@ -1,4 +1,4 @@
 <div fxLayout="row" fxLayoutAlign="space-around center">
-  <button type="button" class="btn btn-lg btn-success" (click)="guess(true)" >Чет</button>
-  <button type="button" class="btn btn-lg btn-primary" (click)="guess(false)" >Нечет</button>
+  <button type="button" class="btn btn-lg btn-success" [disabled]="busy" (click)="guess(true)" >Чет</button>
+  <button type="button" class="btn btn-lg btn-primary" [disabled]="busy" (click)="guess(false)" >Нечет</button>
 </div>

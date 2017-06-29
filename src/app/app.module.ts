@@ -22,6 +22,7 @@ import { ScoreListComponent } from './score-list/score-list.component';
 import { GameChooseOddEvenComponent } from './game-choose-odd-even/game-choose-odd-even.component';
 import { GameMenuComponent } from './game-menu/game-menu.component';
 import { HelpComponent } from './help/help.component';
+import { BusyButtonComponent } from './shared/busy-button/busy-button.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { HelpComponent } from './help/help.component';
     ScoreListComponent,
     GameChooseOddEvenComponent,
     GameMenuComponent,
-    HelpComponent
+    HelpComponent,
+    BusyButtonComponent
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

@@ -1,0 +1,4 @@
+<button type="button" [disabled]="disabled" (click)="onClick($event)" class="btn btn-lg btn-primary" >
+  <span *ngIf="busy" ><i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i></span>
+  <ng-content *ngIf="!busy" ></ng-content>
+</button>
