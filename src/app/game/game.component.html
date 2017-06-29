@@ -1,4 +1,4 @@
-<div [ngSwitch]="gameState?.state" fxLayout="column" fxFlex fxLayoutAlign="center center" >
+<div [ngSwitch]="gameState?.status" fxLayout="column" fxFlex fxLayoutAlign="center center" >
   <div *ngSwitchCase="GameStates.Created" class="looking-for-players" >
     <h4 class="text-primary">Поиск соперников</h4>
 
@@ -26,31 +26,33 @@
         </div>
 
         <div *ngSwitchCase="TurnType.MakeNumber" class="turn" >
-          <h4 class="title text-primary" >Ваш ход</h4>
+          <h2 class="title text-primary" >Ваш ход</h2>
           <app-game-enter-number [gameId]="gameState.id" ></app-game-enter-number>
         </div>
 
         <div *ngSwitchCase="TurnType.Wait" class="turn" >
-          <h4 class="title text-primary" >Ждем Ваш ход</h4>
+          <h2 class="title text-primary" >Ждем Ваш ход</h2>
         </div>
       </div>
     </div>
 
     <div *ngIf="scores" class="centered" >
       <h4 class="text-muted">Счет</h4>
-      <ul class="list-group">
-        <li class="list-group-item" *ngFor="let s of scores" >
-          <span class="badge">{{s.score}}</span>
-          {{s.player.nickname}}
-        </li>
-      </ul>
+      <app-score-list [scores]="scores" ></app-score-list>
     </div>
 
   </div>
   <div *ngSwitchCase="GameStates.Finished">
-    <h2>
-      Игра завершилась
+    <h2 class="text-primary">
+      Игра завершилась, победил {{gameState.winner?.nickname}}
     </h2>
+
+    <app-score-list [scores]="scores" ></app-score-list>
+
+    <div class="centered">
+      <a class="btn btn-default btn-lg" role="button" routerLink="/" >Продолжить</a>
+    </div>
+
   </div>
   <div *ngSwitchCase="GameStates.Canceled">
     <h2>

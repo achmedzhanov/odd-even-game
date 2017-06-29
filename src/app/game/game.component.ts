@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {GameStates, StartingGameState, TurnType} from '../game.model';
+import {GameStatus, GameState, TurnType} from '../game.model';
 import { GameService } from '../game.service';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil'
@@ -18,9 +18,9 @@ export class GameComponent implements OnInit, OnDestroy {
 
   scores: any[];
 
-  gameState: StartingGameState /* PlayingGameState */ = null;
+  gameState: GameState /* PlayingGameState */ = null;
 
-  GameStates = GameStates;
+  GameStates = GameStatus;
 
   nickname: string = null;
 

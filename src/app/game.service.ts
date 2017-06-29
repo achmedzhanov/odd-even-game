@@ -3,30 +3,41 @@ import { AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 import {
-  GameState, GameStates, Player, Score, StartingGameState,
-  TurnType
+  GameStatus, Player, Score, GameState, TurnType
 } from 'app/game.model';
 import { Observable, Subject, BehaviorSubject } from 'rxjs/Rx';
 import {AuthRequiredError} from './auth-required.error';
 import {isNullOrUndefined} from 'util';
 
-interface GameTurn {
+interface RecordTurn {
   turn?: {
     playerKey: string,
     turnType: TurnType
-  }
+  },
+  roundIdx?: number
 }
 
-interface GameNumber {
-  number?: number;
+interface RecordSecretNumber {
+  secretNumber?: number;
 }
 
-interface GameScores {
-  scores?: {};
+interface RecordScores {
+  scores?: {[key: string]: number};
+}
+
+interface RecordPlayers {
+  players: {[key: string]: string},
+  winner: Player;
+}
+
+interface RecordPlayingGameState extends RecordTurn, RecordSecretNumber, RecordScores, RecordPlayers {
+  state: GameStatus;
 }
 
 @Injectable()
 export class GameService {
+
+  readonly defaultNumberOfRounds = 5;
 
   private _user: firebase.User = null;
 
@@ -84,7 +95,7 @@ export class GameService {
         nickname: params.nickname
       },
       players: players,
-      state: GameStates.Created
+      state: GameStatus.Created
     });
 
     return newData.key;
@@ -104,10 +115,10 @@ export class GameService {
     return this._db.object('/games/' + gameId, { preserveSnapshot: true }).map((v) => v.val());
   }
 
-  getStartingGameState(gameId: string): Observable<StartingGameState> {
+  getStartingGameState(gameId: string): Observable<GameState> {
     this._checkAuth();
 
-    return this._db.object('/games/' + gameId, { preserveSnapshot: false }).map((v) => this._mapStartingGameState(v));
+    return this._db.object('/games/' + gameId, { preserveSnapshot: false }).map((v) => this._mapGameState(v));
   }
 
   async joinGame(gameId: string): Promise<boolean> {
@@ -153,13 +164,13 @@ export class GameService {
         return game;
       }
 
-      if (game.state === GameStates.Created) {
+      if (game.state === GameStatus.Created) {
         if (game.creator.uid === currentUserUid) {
-          game.state = GameStates.Canceled;
+          game.state = GameStatus.Canceled;
         } else {
           game.players[currentUserUid] = null;
         }
-      } else if (game.state === GameStates.Created) {
+      } else if (game.state === GameStatus.Created) {
         // todo
         // mark user as removed
         // stop game if less then 2 players
@@ -169,7 +180,7 @@ export class GameService {
     });
   }
 
-  getStartingGames(max: number): Observable<StartingGameState[]> {
+  getStartingGames(max: number): Observable<GameState[]> {
     this._checkAuth();
 
     return this._db.list('/games', {
@@ -179,7 +190,7 @@ export class GameService {
         orderByChild: 'state',
         equalTo: 0
       }
-    }).map(a => a.map(r => this._mapStartingGameState(r)));
+    }).map(a => a.map(r => this._mapGameState(r)));
   }
 
 
@@ -201,12 +212,12 @@ export class GameService {
 
     const currentUserUid = this._user.uid;
 
-    const result = await this._db.database.ref('/games/' + gameId).transaction((game: GameState & GameTurn & GameNumber & GameScores) => {
+    const result = await this._db.database.ref('/games/' + gameId).transaction((game: RecordPlayingGameState) => {
       if (!game) {
         return game;
       }
 
-      if (game.state !== GameStates.Started ) {
+      if (game.state !== GameStatus.Started ) {
         return game;
       }
 
@@ -214,7 +225,7 @@ export class GameService {
         return game;
       }
 
-      const actualIsEven = (game.number % 2) === 0;
+      const actualIsEven = (game.secretNumber % 2) === 0;
 
       if (actualIsEven === isEven) {
         const scores = game.scores || {};
@@ -224,6 +235,7 @@ export class GameService {
       }
 
       this._nextTurn(<any>game);
+      this._checkFinished(game);
 
       return game;
     });
@@ -237,12 +249,12 @@ export class GameService {
 
     const currentUserUid = this._user.uid;
 
-    const result = await this._db.database.ref('/games/' + gameId).transaction((game: GameState & GameTurn & GameNumber) => {
+    const result = await this._db.database.ref('/games/' + gameId).transaction((game: RecordPlayingGameState) => {
       if (!game) {
         return game;
       }
 
-      if (game.state !== GameStates.Started ) {
+      if (game.state !== GameStatus.Started ) {
         return game;
       }
 
@@ -250,7 +262,7 @@ export class GameService {
         return game;
       }
 
-      game.number = value;
+      game.secretNumber = value;
 
       this._nextTurn(<any>game);
 
@@ -290,8 +302,8 @@ export class GameService {
   }
 
   private _startGame(game: any) {
-    game.state = GameStates.Started;
-    game.numberOfrounds = 5; // TODO get from db
+    game.state = GameStatus.Started;
+    game.numberOfRounds = this.defaultNumberOfRounds; // TODO get from db
     this._nextTurn(game);
   }
 
@@ -315,6 +327,7 @@ export class GameService {
         scores[k] = 0;
       }
       game.scores = scores;
+
     } else {
         const idx = playersKeys.indexOf(game.turn.playerKey);
         if (idx === -1) {
@@ -340,16 +353,56 @@ export class GameService {
     }
   }
 
-  private _mapStartingGameState(record: any): StartingGameState {
-    return <StartingGameState>{
+  private _checkFinished(game: RecordPlayingGameState) {
+    const numberOfRounds = (<any>game).numberOfRounds || this.defaultNumberOfRounds;
+
+    if (game.roundIdx < numberOfRounds) {
+      return;
+    }
+
+    const playerIdx = Object.keys(game.players).indexOf(game.turn.playerKey);
+    if (playerIdx === -1) {
+      throw new Error('invalid game state');
+    }
+
+    if (game.roundIdx === numberOfRounds && playerIdx === 0 && game.turn.turnType === TurnType.Guess) {
+      return;
+    }
+
+    const sortedScores =  Object.keys(game.scores)
+      .map((k) => {
+        return {playerKey: k, score: game.scores[k]};
+      }).sort((a, b) => b.score - a.score);
+
+    const nofirst = !(sortedScores[0].score > sortedScores[1].score);
+
+    if (nofirst) {
+      return;
+    }
+
+    game.state = GameStatus.Finished;
+    const winnerKey = sortedScores[0].playerKey;
+    const winnerNickname = game.players[winnerKey];
+    game.winner = {
+      uid: winnerKey,
+      nickname: game.players[winnerKey]
+    }
+  }
+
+  private _mapGameState(record: any): GameState {
+    return <GameState>{
       id: record.$key,
-      state: record.state,
+      status: record.state,
       numberOfPlayers: record.numberOfPlayers,
       joinedNumberOfPlayers: Object.keys(record.players).length,
       creator: {
         uid: record.creator.uid,
         nickname: record.creator.nickname
       },
+      winner: record.winner ?  {
+        uid: record.winner.uid,
+        nickname: record.winner.nickname
+      } : null,
       players: Object.keys(record.players).map((k) => {
         return {
           uid: k,

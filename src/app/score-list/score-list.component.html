@@ -1,3 +1,6 @@
-<p>
-  score-list works!
-</p>
+<ul class="list-group" *ngIf="scores" >
+  <li class="list-group-item" *ngFor="let s of scores" >
+    <span class="badge">{{s.score}}</span>
+    {{s.player.nickname}}
+  </li>
+</ul>

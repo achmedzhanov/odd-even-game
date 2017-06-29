@@ -1,12 +1,8 @@
-export enum GameStates {
+export enum GameStatus {
   Created = 0,
   Started = 1,
   Finished = 2,
   Canceled = 3
-}
-
-export interface GameState {
-  state: GameStates;
 }
 
 export interface Player {
@@ -19,12 +15,14 @@ export interface Score {
   score: number;
 }
 
-export interface StartingGameState extends GameState {
+export interface GameState {
+  status: GameStatus;
   numberOfPlayers: number;
   joinedNumberOfPlayers: number;
   id: string;
   creator: Player;
   players: Player[];
+  winner?: Player;
   canCancel: boolean;
 }
 
