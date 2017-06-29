@@ -5,15 +5,19 @@ import { PageNotFoundComponent } from './shared/page-not-found/page-not-found.co
 import { GameComponent } from './game/game.component';
 import { GameListComponent } from './game-list/game-list.component';
 import { ErrorComponent } from './shared/error/error.component';
+import {GameMenuComponent} from './game-menu/game-menu.component';
+import {HelpComponent} from './help/help.component';
 
 export const appRoutes: Routes = [
   { path: 'error', component: ErrorComponent },
-  { path: 'enter-name', component: SignInComponent },
+  { path: 'sign-in', component: SignInComponent },
+  { path: 'menu', component: GameMenuComponent },
   { path: 'create-game', component: CreateGameComponent },
   { path: 'game-list', component: GameListComponent },
   { path: 'game/:id', component: GameComponent },
+  { path: 'help', component: HelpComponent },
   { path: '',
-    redirectTo: '/enter-name',
+    redirectTo: '/menu',
     pathMatch: 'full'
   },
   { path: '**', component: PageNotFoundComponent }

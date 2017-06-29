@@ -7,9 +7,8 @@
   </div>
 
     <div *ngIf="games && games.length === 0" >
-      <p>Нет игр</p>
-
-      <a routerLink="/create-game" >Начать новую игру</a>
+      <p>Нет запущенных игр</p>
+      <a class="btn btn-default btn-lg btn-block" role="button" routerLink="/" >Отмена</a>
     </div>
 
     <div *ngIf="games && games.length > 0" >
@@ -39,8 +38,9 @@
           </td>
         </tr>
       </table>
-
-      <a routerLink="/create-game" >Новая игра</a>
+      <a class="btn btn-default btn-lg btn-block" role="button" routerLink="/" >Отмена</a>
     </div>
+
+
 
 </div>

@@ -9,6 +9,7 @@ import {Router} from '@angular/router';
   styleUrls: ['../shared/form-screen.css']
 })
 export class CreateGameComponent implements OnInit {
+
   form: FormGroup;
   busy = false;
 
@@ -17,7 +18,7 @@ export class CreateGameComponent implements OnInit {
   ngOnInit() {
 
     if (!this._gameService.nickname) {
-      this._router.navigate(['enter-name']);
+      this._router.navigate(['sign-in']);
     }
 
     this.form = this._fb.group({

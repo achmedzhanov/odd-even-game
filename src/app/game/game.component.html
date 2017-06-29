@@ -44,7 +44,10 @@
   </div>
   <div *ngSwitchCase="GameStates.Finished">
     <h2 class="text-primary">
-      Игра завершилась, победил {{gameState.winner?.nickname}}
+      Игра завершилась
+    </h2>
+    <h2 class="text-primary">
+      Победил {{gameState.winner?.nickname}}
     </h2>
 
     <app-score-list [scores]="scores" ></app-score-list>

@@ -287,7 +287,7 @@ export class GameService {
     const scores$ = this._db.object('/games/' + gameId + '/scores', { preserveSnapshot: true })
       .map((r) => {
         return <{[ket: string]: number} | null>r.val();
-      });
+      }).filter(v => v !== null);
 
     return players$.combineLatest(scores$)
       .map((v) => {

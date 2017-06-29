@@ -31,7 +31,7 @@ export class GameComponent implements OnInit, OnDestroy {
   async cancel() {
     if (this.gameState) {
       await this._gameService.leaveGame(this.gameState.id);
-      await this._router.navigate(['game-list']);
+      await this._router.navigateByUrl('/');
     }
   }
 

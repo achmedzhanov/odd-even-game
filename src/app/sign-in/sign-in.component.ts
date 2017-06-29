@@ -4,7 +4,7 @@ import { GameService } from '../game.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-enter-name',
+  selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
   styleUrls: ['../shared/form-screen.css']
 })

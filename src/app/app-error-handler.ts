@@ -26,7 +26,7 @@ export class AppErrorHandler extends ErrorHandler {
   handleError(error: any): void {
     if (error instanceof AuthRequiredError || error.rejection instanceof AuthRequiredError) {
       const router = this._injector.get(Router);
-      router.navigateByUrl('/enter-name');
+      router.navigateByUrl('/sign-in');
     } else if (errorMessageMatch(error, (m) => m && m.startsWith('PERMISSION_DENIED'))) {
       const router = this._injector.get(Router);
       router.navigateByUrl('/error');

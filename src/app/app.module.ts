@@ -20,6 +20,8 @@ import { ErrorComponent } from './shared/error/error.component';
 import { GameEnterNumberComponent } from './game-enter-number/game-enter-number.component';
 import { ScoreListComponent } from './score-list/score-list.component';
 import { GameChooseOddEvenComponent } from './game-choose-odd-even/game-choose-odd-even.component';
+import { GameMenuComponent } from './game-menu/game-menu.component';
+import { HelpComponent } from './help/help.component';
 
 
 @NgModule({
@@ -33,7 +35,9 @@ import { GameChooseOddEvenComponent } from './game-choose-odd-even/game-choose-o
     ErrorComponent,
     GameEnterNumberComponent,
     ScoreListComponent,
-    GameChooseOddEvenComponent
+    GameChooseOddEvenComponent,
+    GameMenuComponent,
+    HelpComponent
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
