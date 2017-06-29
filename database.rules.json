@@ -5,6 +5,7 @@
       "games": {
             ".indexOn": ["state"],
               "$gameId": {
+                //".read": "auth != null",
                 "numberOfPlayers": {
                     ".validate": "newData.isNumber() && newData.val() > 0"
               	    }
@@ -14,6 +15,23 @@
             "$uid": {
               ".write": "$uid === auth.uid"
             }
-        }             
+        },
+      "requests": {
+    		"$request": {
+          "$uid": {			
+              ".write": "$uid === auth.uid",
+              ".read": "$uid === auth.uid"         
+          }
+        },
+      "responses": {
+    		"$response": {
+          "$uid": {			
+              ".write": "$uid === auth.uid",
+              ".read": "$uid === auth.uid"          
+          }
+        }
+          
+      }
+    }
   }
 }
