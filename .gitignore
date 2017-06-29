@@ -8,6 +8,8 @@
 # dependencies
 /node_modules
 /functions/node_modules
+/functions/lib
+/functions/src/*.js
 
 # IDEs and editors
 /.idea
@@ -41,3 +43,6 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+src/app/game.model.js
+src/app/game.records.js

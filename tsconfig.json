@@ -17,5 +17,5 @@
       "dom"
     ]
   },
-  "exclude": ["functions"]
+  "exclude": ["functions", "node_modules"]
 }

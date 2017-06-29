@@ -1,53 +1,116 @@
 import * as functions from 'firebase-functions';
 
 import * as db from './db';
-import { GameStatus } from '../../src/app/game.model';
+import {checkPathSymbols, GameActionsService} from './game-actions';
 
 
-// When a new guessed noun is written to the Firebase Realtime Database (either
-// from the 'analyzeSpeech' function or directly by the user's app when) we'll
-// do the actual scorekeeping in this function.
-exports.createGame = functions.database.ref(
-  '/requests/create-game/{userId}/{gameId}').onWrite(async event => {
+class Request {
+
+  readonly id: string;
+  readonly userId: string;
+  readonly value: any;
+
+  get resolved(): boolean {
+    return this._resolved;
+  }
+
+  get resolveValue(): any {
+    return this._resolveValue;
+  }
+
+  private _resolved = false;
+  private _resolveValue: any = null;
+
+  constructor(id: string, userId: string, value: any) {
+    this.id = id;
+    this.userId = userId;
+    this.value = value;
+  }
+
+  resolve(value?: any) {
+    if (this._resolved) {
+      throw new Error('request already resolved');
+    }
+    this._resolved = true;
+    this._resolveValue = value;
+  }
+
+}
+
+type RequestHandler = (ga: GameActionsService, request: Request,
+                       event: functions.Event<functions.database.DeltaSnapshot> ) => PromiseLike<any> | any;
+
+function handleRequest(requestName: string, handler: RequestHandler ): functions.CloudFunction<functions.database.DeltaSnapshot> {
+  return functions.database.ref(
+    `/requests/${requestName}/{userId}/{requestId}`).onWrite(async event => {
 
     if (!event.data.current.val()) {
       return;
     }
 
-    const numberOfPlayers = event.data.current.val().numberOfPlayers;
+    const value = event.data.current.val();
     const userId = event.params.userId;
-    const gameId = event.params.gameId;
+    const requestId = event.params.requestId;
 
     try {
 
-      const nickname = await db.get(/users/ + userId + '/nickname');
+    const request = new Request(requestId, userId, value);
+    const ga = new GameActionsService(userId);
+    let result = handler(ga, request, event);
+    if (result && result.then) {
+      result = await <Promise<any>>result;
+    }
 
-      await db.transaction('/games/' + gameId, (game: any) => {
+    let responseValue = true;
+    if (result !== null && result !== undefined) {
+      responseValue = result;
+    }
 
-        if (game !== null) {
-          return game;
-        }
+    if (request.resolved && request.resolveValue !== null && request.resolveValue !== undefined) {
+      responseValue = request.resolveValue;
+    }
 
-        const players = {};
-        players[userId] = nickname;
-
-        return {
-          numberOfPlayers: numberOfPlayers,
-          creator: {
-            uid: userId,
-            nickname: nickname
-          },
-          players: players,
-          state: GameStatus.Created
-        };
-
-      });
-
-
-      await db.set('/responses/create-game/' + userId + '/' + gameId, gameId);
+    await db.set(`/responses/${requestName}/${userId}/${requestId}`, responseValue);
+    // TODO return error code to response when exception
 
     } catch (err) {
-       console.error('Error while create game: ' + err);
+      console.error('Error while process response: ' + `/requests/${requestName}/{userId}/{requestId}`);
     }
+
+  });
+}
+
+exports.createGame = handleRequest('create-game', async (gameActions, request, event) => {
+  const numberOfPlayers =  request.value.numberOfPlayers;
+  return await gameActions.createGame(numberOfPlayers || 2);
 });
 
+exports.joinGame = handleRequest('join-game', async (gameActions, request, event) => {
+  const gameId =  request.value.gameId;
+  checkPathSymbols(gameId);
+  return await gameActions.joinGame(gameId);
+});
+
+exports.leaveGame = handleRequest('leave-game', async (gameActions, request, event) => {
+  const gameId =  request.value.gameId;
+  checkPathSymbols(gameId);
+  return await gameActions.leaveGame(gameId);
+});
+
+exports.makeNumber = handleRequest('make-number', async (gameActions, request, event) => {
+  const gameId =  request.value.gameId;
+  checkPathSymbols(gameId);
+  const value =  request.value.value;
+  checkPathSymbols(value);
+
+  return await gameActions.makeNumber(gameId, value);
+});
+
+exports.guess = handleRequest('guess', async (gameActions, request, event) => {
+  const gameId =  request.value.gameId;
+  checkPathSymbols(gameId);
+  const isEven =  request.value.isEven;
+  checkPathSymbols(isEven);
+
+  return await gameActions.guess(gameId, isEven);
+});
