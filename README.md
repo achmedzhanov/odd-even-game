@@ -1,12 +1,15 @@
 # Игра чет-нечет
 
-## Запуск для разработчика
+## Настрока окружения
+Для работы с проектом необходимо установить [Angular CLI|https://github.com/angular/angular-cli#installation]
+
+## Запуск dev сервера
 ```bash
 npm install
 ng serve
 ```
 
-## Сборка длчя развертывания
+## Сборка для развертывания
 ```bash
 ng build
 ```
