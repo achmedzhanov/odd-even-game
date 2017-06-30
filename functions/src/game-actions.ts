@@ -1,5 +1,5 @@
 import {GameStatus, Player, TurnType} from '../../src/app/game.model';
-import {RecordPlayingGameState} from '../../src/app/game.records';
+import {RecordPlayingGameState, RecordTurn} from '../../src/app/game.records';
 
 import * as db from './db';
 
@@ -129,6 +129,8 @@ export class GameActionsService {
 
     const currentScore = await db.get(`/games/${gameId}`) || 0;
 
+    const secretNumber = Number(await db.get(`/games-secret-number/${gameId}`));
+
     const result = await db.transaction('/games/' + gameId, (game: RecordPlayingGameState) => {
       if (!game) {
         return game;
@@ -142,7 +144,7 @@ export class GameActionsService {
         return game;
       }
 
-      const actualIsEven = (game.secretNumber % 2) === 0;
+      const actualIsEven = (secretNumber % 2) === 0;
 
       if (actualIsEven === isEven) {
         const scores = game.scores || {};
@@ -172,6 +174,14 @@ export class GameActionsService {
       throw new Error('expected not empty value');
     }
 
+    const turn = await db.get(`/games/${gameId}/turn`);
+    if (!(turn && turn.playerKey === this._currentUserUid && turn.turnType === TurnType.MakeNumber)) {
+      console.error('turn', turn);
+      return;
+    }
+
+    await db.set(`/games-secret-number/${gameId}`, value);
+
     await db.transaction(`/games/${gameId}`, (game: RecordPlayingGameState) => {
       if (!game) {
         return game;
@@ -184,8 +194,6 @@ export class GameActionsService {
       if (!(game.turn && game.turn.playerKey === this._currentUserUid && game.turn.turnType === TurnType.MakeNumber)) {
         return game;
       }
-
-      game.secretNumber = value;
 
       this._nextTurn(<any>game);
 

@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 admin.initializeApp(functions.config().firebase);
 
-export function get(path: string): Promise<string> {
+export function get(path: string): Promise<any> {
   return admin.database().ref(path).once('value').then(snapshot => {
     return snapshot.val();
   });

@@ -1,37 +1,42 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
       "games": {
-            ".indexOn": ["state"],
-              "$gameId": {
-                //".read": "auth != null",
-                "numberOfPlayers": {
-                    ".validate": "newData.isNumber() && newData.val() > 0"
-              	    }
-            	  }
-          	},
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".indexOn": ["state"],
+          "$gameId": {
+            "numberOfPlayers": {
+             ".validate": "newData.isNumber() && newData.val() > 0"
+            }
+          }
+      },
       "users": {
             "$uid": {
-              ".write": "$uid === auth.uid"
+              ".write": "$uid === auth.uid",
+              ".read": "auth != null"
             }
         },
       "requests": {
-    		"$request": {
-          "$uid": {			
-              ".write": "$uid === auth.uid",
-              ".read": "$uid === auth.uid"         
-          }
-        },
-      "responses": {
-    		"$response": {
-          "$uid": {			
-              ".write": "$uid === auth.uid",
-              ".read": "$uid === auth.uid"          
+        "$request": {
+          "$uid": {
+            ".write": "$uid === auth.uid",
+            ".read": "$uid === auth.uid"
           }
         }
-          
+      },
+      "responses": {
+        "$response": {
+          "$uid": {
+              ".write": "$uid === auth.uid",
+              ".read": "$uid === auth.uid"
+          }
+        }
+      },
+      "games-secret-number": {
+        "$gameId": {
+            ".write": false,
+            ".read": false
+        }
       }
-    }
   }
 }
